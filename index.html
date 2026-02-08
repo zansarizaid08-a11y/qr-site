@@ -8,8 +8,12 @@
   <button onclick="sendData()">Send Data</button>
 
   <script>
-    function sendData() {
-      fetch("https://zetta-nonvolitional-clarence.ngrok-free.dev/api", {
+    async function sendData() {
+      // GitHub se API URL read karega
+      const res = await fetch("api.json");
+      const config = await res.json();
+
+      fetch(config.api + "/api", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -18,7 +22,9 @@
           name: "test user",
           time: Date.now()
         })
-      });
+      })
+      .then(() => alert("Data sent"))
+      .catch(() => alert("Server offline"));
     }
   </script>
 </body>
