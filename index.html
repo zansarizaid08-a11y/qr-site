@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>QR Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
     body {
@@ -12,7 +13,6 @@
       align-items: center;
       height: 100vh;
     }
-
     .card {
       background: white;
       width: 300px;
@@ -21,93 +21,58 @@
       text-align: center;
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
-
     .profile-img {
       width: 100px;
       height: 100px;
       border-radius: 50%;
-      object-fit: cover;
       margin-bottom: 10px;
     }
-
     .name {
       font-size: 20px;
       font-weight: bold;
       margin-bottom: 15px;
     }
-
     .btn {
       width: 100%;
       padding: 12px;
-      border: none;
       border-radius: 10px;
       background: #E1306C;
       color: white;
+      border: none;
       font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
       cursor: pointer;
-    }
-
-    .btn img {
-      width: 24px;
-    }
-
-    .status {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #666;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="card">
-    <button onclick="loadProfile()">Send Data</button>
-    <div class="status" id="status"></div>
-    <div id="result" style="margin-top:15px;"></div>
-  </div>
+<div class="card" id="card">Loading...</div>
 
-  <script>
-    async function loadProfile() {
-      const status = document.getElementById("status");
-      const result = document.getElementById("result");
+<script>
+  const id = new URLSearchParams(window.location.search).get("id");
 
-      status.innerText = "Loading...";
-      result.innerHTML = "";
-
-      try {
-        const cfg = await fetch("api.json").then(r => {
-          if (!r.ok) throw "api.json not found";
-          return r.json();
-        });
-
-        const data = await fetch(cfg.api + "/api/profile").then(r => {
-          if (!r.ok) throw "API not responding";
-          return r.json();
-        });
-
-        status.innerText = "";
-
-        result.innerHTML = `
-          <img class="profile-img" src="${data.profileImage}">
-          <div class="name">${data.name}</div>
-
-          <a href="${data.instagram}" target="_blank">
-            <button class="btn">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png">
-              Instagram
-            </button>
+  if (!id) {
+    document.getElementById("card").innerText = "Invalid QR";
+  } else {
+    fetch("users.json")
+      .then(r => r.json())
+      .then(db => {
+        const u = db[id];
+        if (!u) {
+          document.getElementById("card").innerText = "User not found";
+          return;
+        }
+        document.getElementById("card").innerHTML = `
+          <img class="profile-img" src="${u.profileImage}">
+          <div class="name">${u.name}</div>
+          <a href="${u.instagram}" target="_blank">
+            <button class="btn">Instagram</button>
           </a>
         `;
-      } catch (err) {
-        status.innerText = "Error: " + err;
-      }
-    }
-  </script>
+      });
+  }
+</script>
 
 </body>
 </html>
