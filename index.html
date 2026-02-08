@@ -1,31 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>QR Site</title>
+  <title>QR Profile</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: white;
+      width: 300px;
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .profile-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+
+    .name {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #E1306C;
+      color: white;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .btn img {
+      width: 24px;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Hello QR Site</h1>
-  <button onclick="sendData()">Send Data</button>
+
+  <div class="card">
+    <button onclick="loadProfile()">Send Data</button>
+    <div id="result"></div>
+  </div>
 
   <script>
-    async function sendData() {
-      // GitHub se API URL read karega
-      const res = await fetch("api.json");
-      const config = await res.json();
+    async function loadProfile() {
+      const cfg = await fetch("api.json").then(r => r.json());
+      const data = await fetch(cfg.api + "/api/profile").then(r => r.json());
 
-      fetch(config.api + "/api", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name: "test user",
-          time: Date.now()
-        })
-      })
-      .then(() => alert("Data sent"))
-      .catch(() => alert("Server offline"));
+      document.getElementById("result").innerHTML = `
+        <img class="profile-img" src="${data.profileImage}">
+        <div class="name">${data.name}</div>
+
+        <a href="${data.instagram}" target="_blank">
+          <button class="btn">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png">
+            Instagram
+          </button>
+        </a>
+      `;
     }
   </script>
+
 </body>
 </html>
