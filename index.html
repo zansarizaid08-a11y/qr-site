@@ -80,13 +80,15 @@
       result.innerHTML = "";
 
       try {
-        const cfgRes = await fetch("api.json");
-        if (!cfgRes.ok) throw "api.json not found";
-        const cfg = await cfgRes.json();
+        const cfg = await fetch("api.json").then(r => {
+          if (!r.ok) throw "api.json not found";
+          return r.json();
+        });
 
-        const dataRes = await fetch(cfg.api + "/api/profile");
-        if (!dataRes.ok) throw "API not responding";
-        const data = await dataRes.json();
+        const data = await fetch(cfg.api + "/api/profile").then(r => {
+          if (!r.ok) throw "API not responding";
+          return r.json();
+        });
 
         status.innerText = "";
 
