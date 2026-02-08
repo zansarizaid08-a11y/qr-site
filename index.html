@@ -2,8 +2,6 @@
 <html>
 <head>
   <title>QR Profile</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <style>
     body {
       font-family: Arial;
@@ -25,6 +23,7 @@
       width: 100px;
       height: 100px;
       border-radius: 50%;
+      object-fit: cover;
       margin-bottom: 10px;
     }
     .name {
@@ -35,44 +34,75 @@
     .btn {
       width: 100%;
       padding: 12px;
+      border: none;
       border-radius: 10px;
       background: #E1306C;
       color: white;
-      border: none;
       font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       cursor: pointer;
+    }
+    .btn img {
+      width: 24px;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
     }
   </style>
 </head>
 
 <body>
-
-<div class="card" id="card">Loading...</div>
+  <div class="card">
+    <div class="status" id="status">Loading...</div>
+    <div id="result"></div>
+  </div>
 
 <script>
-  const id = new URLSearchParams(window.location.search).get("id");
+(async function () {
+  const status = document.getElementById("status");
+  const result = document.getElementById("result");
 
-  if (!id) {
-    document.getElementById("card").innerText = "Invalid QR";
-  } else {
-    fetch("users.json")
-      .then(r => r.json())
-      .then(db => {
-        const u = db[id];
-        if (!u) {
-          document.getElementById("card").innerText = "User not found";
-          return;
-        }
-        document.getElementById("card").innerHTML = `
-          <img class="profile-img" src="${u.profileImage}">
-          <div class="name">${u.name}</div>
-          <a href="${u.instagram}" target="_blank">
-            <button class="btn">Instagram</button>
-          </a>
-        `;
-      });
+  // 1️⃣ URL se userId nikaalo
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get("id");
+
+  if (!userId) {
+    status.innerText = "Invalid QR";
+    return;
   }
-</script>
 
+  try {
+    // 2️⃣ API base URL lao
+    const cfg = await fetch("api.json").then(r => r.json());
+
+    // 3️⃣ User data lao
+    const res = await fetch(cfg.api + "/api/profile/" + userId);
+    if (!res.ok) throw "User not found";
+
+    const data = await res.json();
+
+    status.innerText = "";
+
+    result.innerHTML = `
+      <img class="profile-img" src="${data.profileImage}">
+      <div class="name">${data.name}</div>
+
+      <a href="${data.instagram}" target="_blank">
+        <button class="btn">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png">
+          Instagram
+        </button>
+      </a>
+    `;
+  } catch (e) {
+    status.innerText = "Error loading profile";
+  }
+})();
+</script>
 </body>
 </html>
