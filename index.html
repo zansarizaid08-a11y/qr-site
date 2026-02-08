@@ -54,6 +54,12 @@
     .btn img {
       width: 24px;
     }
+
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
   </style>
 </head>
 
@@ -61,25 +67,43 @@
 
   <div class="card">
     <button onclick="loadProfile()">Send Data</button>
-    <div id="result"></div>
+    <div class="status" id="status"></div>
+    <div id="result" style="margin-top:15px;"></div>
   </div>
 
   <script>
     async function loadProfile() {
-      const cfg = await fetch("api.json").then(r => r.json());
-      const data = await fetch(cfg.api + "/api/profile").then(r => r.json());
+      const status = document.getElementById("status");
+      const result = document.getElementById("result");
 
-      document.getElementById("result").innerHTML = `
-        <img class="profile-img" src="${data.profileImage}">
-        <div class="name">${data.name}</div>
+      status.innerText = "Loading...";
+      result.innerHTML = "";
 
-        <a href="${data.instagram}" target="_blank">
-          <button class="btn">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png">
-            Instagram
-          </button>
-        </a>
-      `;
+      try {
+        const cfgRes = await fetch("api.json");
+        if (!cfgRes.ok) throw "api.json not found";
+        const cfg = await cfgRes.json();
+
+        const dataRes = await fetch(cfg.api + "/api/profile");
+        if (!dataRes.ok) throw "API not responding";
+        const data = await dataRes.json();
+
+        status.innerText = "";
+
+        result.innerHTML = `
+          <img class="profile-img" src="${data.profileImage}">
+          <div class="name">${data.name}</div>
+
+          <a href="${data.instagram}" target="_blank">
+            <button class="btn">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png">
+              Instagram
+            </button>
+          </a>
+        `;
+      } catch (err) {
+        status.innerText = "Error: " + err;
+      }
     }
   </script>
 
