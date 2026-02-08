@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Site</title>
+</head>
+<body>
+  <h1>Hello QR Site</h1>
+  <button onclick="sendData()">Send Data</button>
+
+  <script>
+    function sendData() {
+      fetch("https://zetta-nonvolitional-clarence.ngrok-free.dev/api", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: "test user",
+          time: Date.now()
+        })
+      });
+    }
+  </script>
+</body>
+</html>
